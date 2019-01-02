@@ -26,22 +26,26 @@ var apod = {
   },
 
   buildDOM: function(result){
-    $('#apodTitle').text(result.title);
+    document.querySelector('#apodTitle').innerHTML = result.title;
 
     if(result.media_type === 'video'){
-      $('#apodImg').hide();
-      $('#apodVideo > iframe').attr('src', result.url).show();
+      document.querySelector('#apodImg').style.display='none';
+      let avi = document.querySelector('#apodVideo > iframe');
+      avi.src=result.url;
+      document.querySelector('#apodVideo').style.display='block';
     }else{
-      $('#apodVideo').hide();
-      $('#apodImg').attr('src', result.url).attr('alt', result.title).show();
+      document.querySelector('#apodVideo').style.display='none';
+      let ai = document.querySelector('#apodImg');
+      ai.src=result.url;
+      ai.style.display='block';
     }
 
     if(result.copyright!=undefined){
-      $('#apodCopyright').text('Copyright: ' + result.copyright);
+      document.querySelector('#apodCopyright').innerHTML = 'Copyright: ' + result.copyright;
     }
 
-    $('#apodDate').text('Date: ' + result.date);
-    $('#apodDesc').text(result.explanation);
+    document.querySelector('#apodDate').innerHTML = 'Date: ' + result.date;
+    document.querySelector('#apodDesc').innerHTML = result.explanation;
   },
 
   getRequest: function() {
@@ -51,15 +55,16 @@ var apod = {
       var url = `https://api.nasa.gov/planetary/apod?api_key=${key}&date=${date}`;
       let _this = this;
 
-      $.ajax({
-          url: url
-      }).done(function(result){
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url);
+      xhr.send();
+
+      xhr.onload = function(){
+        let result = JSON.parse(xhr.response);
 
         _this.buildDOM(result);
-
-      }).fail(function(result){
-        console.log(result);
-      });
+      }
   },
 
   init: function(){
@@ -69,8 +74,8 @@ var apod = {
 
 apod.init();
 
-$(function(){
-  $('#btnRandApod').on('click', function(){
-    apod.getRequest();
-  });
+
+document.querySelector('#btnRandApod').addEventListener('click', function(){
+  apod.getRequest();
 });
+
